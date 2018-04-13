@@ -25,27 +25,25 @@ class Fuzzer(object):
 
         # boolean to tell the loop when it's found all bugs
         allBugsFound = False
-        
+
         # keeps track of which bug the fuzzer is testing
         bugNumber = 1
-        bugTestCounter = 0
-        
+
         # loop while all bugs are not found (maximum of 10k times)
         while not allBugsFound and self.counter < 10000:
-            
+
             # generate a mutation of the template.jpg
             mutate(self, bugNumber)
 
-            # run the converter using the mutated file. It only cares if it fails
+            # run the converter using the mutated file
+            # it only cares if it fails.
+            # it will save the tested image and move onto the next bug
             if not launchProcess(self):
-                print("Bug #" + bugNumber + " found! Took + " bugTestCounter + " tries")  # debug statement
+                # save the mutated file as 'test-bugNumber.jpg' (Example: test-1.jpg)
+                # ...
+
                 # move on the next bug
                 bugNumber += 1
-                bugTestCounter = 0
-
-            # Increment the overall counter
-            self.counter += 1
-            bugTestCounter += 1
 
 
     # Stephen Davis and Jorge Nunez
