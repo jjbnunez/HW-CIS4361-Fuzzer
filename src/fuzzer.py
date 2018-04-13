@@ -4,7 +4,7 @@
 #
 # - Derek Borges
 # - Stephen Davis
-# - Jorge Nuñez
+# - Jorge Nunez
 # - Jesse Spencer
 
 import subprocess
@@ -20,10 +20,15 @@ class Fuzzer(object):
     def mutate(self):
         pass
 
-    def launchProcess(self):
-        pass
+    def launchProcess(self, processName, processLocation, args):
 
+        returned = subprocess.run(args=[processLocation + processName, args], stdout=subprocess.PIPE)
 
+        print(returned.stdout)
+        print(returned.returncode)
 
 if __name__ == '__main__':
-    pass
+
+    fuzzer = Fuzzer()
+
+    fuzzer.launchProcess('jpg2pdf.exe', 'C:/Users/Jesse/Documents/Code/Fuzzer/cis4361-sp18-fuzzer/', 'template.jpg')
