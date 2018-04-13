@@ -3,18 +3,18 @@
 # fuzzer.py
 # =========
 #
-<<<<<<< HEAD
+
 # - Derek Borges
 # - Stephen Davis
 # - Jorge Nunez
 # - Jesse Spencer
-=======
+#=======
 # Authors:      Derek Borges, Stephen Davis, Jorge Nunez, Jesse Spencer
 # Instructor:   Dr. Shahram Jahani, CIS4361-SP18
 # Institution:  University of Central Florida
 # Due Date:     April 15, 2018
 
->>>>>>> ec76f3464e697fdffc03aa3577add2ccfd98e61b
+
 
 import subprocess
 import random
@@ -32,20 +32,20 @@ class Fuzzer(object):
 
         # boolean to tell the loop when it's found all bugs
         allBugsFound = False
-        
+
         # keeps track of which bug the fuzzer is testing
         bugNumber = 1
         bugTestCounter = 0
-        
+
         # loop while all bugs are not found (maximum of 10k times)
         while not allBugsFound and self.counter < 10000:
-            
+
             # generate a mutation of the template.jpg
             mutate(self, bugNumber)
 
             # run the converter using the mutated file. It only cares if it fails
             if not launchProcess(self):
-                print("Bug #" + bugNumber + " found! Took + " bugTestCounter + " tries")  # debug statement
+                print("Bug #" + bugNumber + " found! Took " + bugTestCounter + " tries")  # debug statement
                 # move on the next bug
                 bugNumber += 1
                 bugTestCounter = 0
@@ -88,12 +88,12 @@ class Fuzzer(object):
 
         returned = subprocess.run(args=[processLocation + processName, args], stdout=subprocess.PIPE)
 
-<<<<<<< HEAD
+
         print(returned.stdout)
         print(returned.returncode)
 
-=======
->>>>>>> ec76f3464e697fdffc03aa3577add2ccfd98e61b
+
+
 if __name__ == '__main__':
 
     fuzzer = Fuzzer()
