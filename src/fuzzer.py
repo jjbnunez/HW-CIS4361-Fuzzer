@@ -77,18 +77,17 @@ class Fuzzer(object):
         print("mutate(): done.")        # debug statement
 
 
+    # Launches and executes the program specified in the class variables, passing through args.
     def launchProcess(self, args):
 
-        returned = subprocess.run(args=[self.processLocation + self.processName, args], stdout=subprocess.PIPE)
-
-        print(returned.stdout)
-        print(returned.returncode)
+        # Call the converter program as a subprocess, store data about it in returned
+        returned = subprocess.run([self.processLocation + self.processName, args], stdout=subprocess.PIPE)
 
         return returned.returncode
 
 
 if __name__ == '__main__':
 
-    fuzzer = Fuzzer('jpg2pdf.exe', 'C:/Users/Jesse/Documents/Code/Fuzzer/cis4361-sp18-fuzzer/')
+    fuzzer = Fuzzer('jpg2pdf.exe', '')
 
-    fuzzer.launchProcess()
+    fuzzer.fuzz()
