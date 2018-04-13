@@ -25,19 +25,23 @@ class Fuzzer(object):
         # boolean to tell the loop when it's found all bugs
         allBugsFound = False
 
-        # keeps track of which bug the fuzzer is testing
+        # keeps track of the loop
         bugNumber = 1
         bugTestCounter = 0
+        fileName = ""
 
         # loop while all bugs are not found (maximum of self.MAX times)
         while not allBugsFound and self.counter < self.MAX:
 
-            # generate a mutation of the template.jpg
-            mutate(self, bugNumber)
+            # Build the filename based off the bug number 
+            fileName = "test-"+bugNumber+".jpg"
 
+            # Generate a mutation of the template.jpg
+            mutate(self, fileName)
+            
             # run the converter using the mutated file. It only cares if it fails
             # we'll check for a specific return code for that bug
-            if launchProcess("test-"+bugNumber+".jpg") == 48:
+            if launchProcess(fileName) == 48:
                 print("Bug #" + bugNumber + " found! Took " + bugTestCounter + " tries")  # debug statement
                 # move on the next bug
                 bugNumber += 1
@@ -50,13 +54,13 @@ class Fuzzer(object):
 
     # Stephen Davis and Jorge Nunez
     # Take in and mutate a jpeg file for fuzzing.
-    def mutate(self, bugNumber):
+    def mutate(self, fileName):
 
         print("mutate(): entering...")  # debug statement
 
-        ofp = open("output.jpg", "wb")  # replace with parameters later
+        ofp = open(fileName, "wb")  # replace with parameters later
 
-        with open("input.jpg", "rb") as ifp:
+        with open("template.jpg", "rb") as ifp:
 
             byte = ifp.read(25)
 
