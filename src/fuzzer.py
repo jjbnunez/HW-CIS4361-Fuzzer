@@ -33,15 +33,15 @@ class Fuzzer(object):
         # loop while all bugs are not found (maximum of self.MAX times)
         while not allBugsFound and self.counter < self.MAX:
 
-            # Build the filename based off the bug number 
-            fileName = "test-"+bugNumber+".jpg"
+            # Build the filename based off the bug number
+            fileName = "test-"+str(bugNumber)+".jpg"
 
             # Generate a mutation of the template.jpg
-            mutate(self, fileName)
-            
+            self.mutate(fileName)
+
             # run the converter using the mutated file. It only cares if it fails
             # we'll check for a specific return code for that bug
-            if launchProcess(fileName) == 48:
+            if self.launchProcess(fileName) == 48:
                 print("Bug #" + bugNumber + " found! Took " + bugTestCounter + " tries")  # debug statement
                 # move on the next bug
                 bugNumber += 1
