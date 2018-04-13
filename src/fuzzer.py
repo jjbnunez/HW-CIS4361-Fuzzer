@@ -17,8 +17,32 @@ class Fuzzer(object):
     def fuzz(self):
         pass
 
-    def mutate(self):
-        pass
+    def mutate(self, bugNumber):
+
+        print("mutate(): entering...")  # debug statement
+
+        ofp = open("output.jpg", "wb")  # replace with parameters later
+
+        with open("input.jpg", "rb") as ifp:
+
+            byte = ifp.read(25)
+
+            while byte:
+                if byte == '':
+                    break
+                randInt1 = random.randrange(500)
+                randInt2 = random.randrange(500)
+                if randInt1 == randInt2:
+                    ofp.write(b'\0xA1')
+                else:
+                    ofp.write(byte)
+                byte = ifp.read(10)
+
+        ifp.close()
+        ofp.close()
+
+        print("mutate(): done.")        # debug statement
+
 
     def launchProcess(self):
         pass
