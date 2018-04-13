@@ -1,19 +1,23 @@
 # -*- coding: utf-8 -*-
-# Mutation-based fuzzer
 #
-# CIS 4361 SP-18
+# fuzzer.py
+# =========
 #
-# - Derek Borges
-# - Stephen Davis
-# - Jorge Nuñez
-# - Jesse Spencer
+# Authors:      Derek Borges, Stephen Davis, Jorge Nunez, Jesse Spencer
+# Instructor:   Dr. Shahram Jahani, CIS4361-SP18
+# Institution:  University of Central Florida
+# Due Date:     April 15, 2018
+
 
 import subprocess
+import random
+
 
 class Fuzzer(object):
 
     def __init__(self):
         pass
+
 
     # Derek Borges
     # Loop through and try to exploit all 10 bugs
@@ -21,13 +25,13 @@ class Fuzzer(object):
 
         # boolean to tell the loop when it's found all bugs
         allBugsFound = False
-        
+
         # keeps track of which bug the fuzzer is testing
         bugNumber = 1
-        
+
         # loop while all bugs are not found (maximum of 10k times)
         while not allBugsFound and self.counter < 10000:
-            
+
             # generate a mutation of the template.jpg
             mutate(self, bugNumber)
 
@@ -37,11 +41,13 @@ class Fuzzer(object):
             if not launchProcess(self):
                 # save the mutated file as 'test-bugNumber.jpg' (Example: test-1.jpg)
                 # ...
-                
+
                 # move on the next bug
                 bugNumber += 1
-        
 
+
+    # Stephen Davis and Jorge Nunez
+    # Take in and mutate a jpeg file for fuzzing.
     def mutate(self, bugNumber):
 
         print("mutate(): entering...")  # debug statement
@@ -71,7 +77,6 @@ class Fuzzer(object):
 
     def launchProcess(self):
         pass
-
 
 
 if __name__ == '__main__':
