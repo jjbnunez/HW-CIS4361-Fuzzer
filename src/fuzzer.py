@@ -1,30 +1,22 @@
 # -*- coding: utf-8 -*-
 #
 # fuzzer.py
-# =========
 #
-
-# - Derek Borges
-# - Stephen Davis
-# - Jorge Nunez
-# - Jesse Spencer
-#=======
 # Authors:      Derek Borges, Stephen Davis, Jorge Nunez, Jesse Spencer
 # Instructor:   Dr. Shahram Jahani, CIS4361-SP18
 # Institution:  University of Central Florida
 # Due Date:     April 15, 2018
 
-
-
 import subprocess
 import random
 
-
 class Fuzzer(object):
 
-    def __init__(self):
-        pass
-
+    def __init__(self, processLocation, processName, args):
+        self.processLocation = processLocation
+        self.processName = processName
+        self.args = args
+        self.counter = 0
 
     # Derek Borges
     # Loop through and try to exploit all 10 bugs
@@ -44,7 +36,7 @@ class Fuzzer(object):
             mutate(self, bugNumber)
 
             # run the converter using the mutated file. It only cares if it fails
-            if not launchProcess(self):
+            if not launchProcess():
                 print("Bug #" + bugNumber + " found! Took " + bugTestCounter + " tries")  # debug statement
                 # move on the next bug
                 bugNumber += 1
@@ -84,18 +76,16 @@ class Fuzzer(object):
         print("mutate(): done.")        # debug statement
 
 
-    def launchProcess(self, processName, processLocation, args):
+    def launchProcess(self):
 
-        returned = subprocess.run(args=[processLocation + processName, args], stdout=subprocess.PIPE)
-
+        returned = subprocess.run(args=[self.processLocation + self.processName, self.args], stdout=subprocess.PIPE)
 
         print(returned.stdout)
         print(returned.returncode)
 
 
-
 if __name__ == '__main__':
 
-    fuzzer = Fuzzer()
+    fuzzer = Fuzzer('jpg2pdf.exe', 'C:/Users/Jesse/Documents/Code/Fuzzer/cis4361-sp18-fuzzer/', 'template.jpg')
 
-    fuzzer.launchProcess('jpg2pdf.exe', 'C:/Users/Jesse/Documents/Code/Fuzzer/cis4361-sp18-fuzzer/', 'template.jpg')
+    fuzzer.launchProcess()
