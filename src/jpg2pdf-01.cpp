@@ -118,7 +118,7 @@ BOOL GetJPEGSize(FILE *JPGStream,WORD *AWidth,WORD *AHeight,BOOL *CMYK)
         // Vulnerability.
         if (*AWidth > DIMENSION || *AHeight > DIMENSION) {
           printf("BUG 1 TRIGGERED\n");
-          exit(-1);
+          exit(48);
         }
 
         /* ColorMode */

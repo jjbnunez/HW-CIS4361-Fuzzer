@@ -16,7 +16,7 @@ class Fuzzer(object):
         self.processLocation = processLocation
         self.processName = processName
         self.counter = 0
-        self.MAX = 10000
+        self.maximum = 5000
 
     # Derek Borges
     # Loop through and try to exploit all 10 bugs
@@ -27,36 +27,59 @@ class Fuzzer(object):
 
         # keeps track of the loop
         bugNumber = 1
-        bugTestCounter = 0
         fileName = ""
 
-        # loop while all bugs are not found (maximum of self.MAX times)
-        while not allBugsFound and self.counter < self.MAX:
+        # loop while all bugs are not found.
+        while not allBugsFound:
 
-            # Build the filename based off the bug number
-            fileName = "test-"+str(bugNumber)+".jpg"
+            # Compile the C++ jpeg-to-pdf converter and make the filename.
+            print("Compiling...")
+            if bugNumber < 10:
+                subprocess.run("g++ -o jpg2pdf jpg2pdf-0" + str(bugNumber) + ".cpp")
+                fileName = "test-0" + str(bugNumber) + ".jpg"
+            else:
+                subprocess.run("g++ -o jpg2pdf jpg2pdf-" + str(bugNumber) + ".cpp")
+                fileName = "test-" + str(bugNumber) + ".jpg"
+            print("Done.")
 
-            # Generate a mutation of the template.jpg
-            self.mutate(fileName)
+            # Announce start of search.
+            print("Searching for Bug #" + str(bugNumber) + "...")
 
-            # run the converter using the mutated file. It only cares if it fails
-            # we'll check for a specific return code for that bug
-            if self.launchProcess(fileName) == 48:
-                print("Bug #" + bugNumber + " found! Took " + bugTestCounter + " tries")  # debug statement
-                # move on the next bug
+            # Loop until a bug is found, or until the maximum number of tries
+            # is reached.
+            while self.counter < self.maximum:
+
+                # Increment the attempt number.
+                self.counter += 1
+                print("Attempt #" + str(self.counter) + "/" + str(self.maximum) + "...")
+
+                # Generate a mutation of the input file.
+                self.mutate(fileName)
+
+                # Run the converter to see if it fails with the mutated file.
+                if self.launchProcess(fileName) == 48:
+                    print("Bug #" + str(bugNumber) + " found!")
+                    print("Took " + str(self.counter) + " tries.")
+
+                    # Great! Move on to the next bug.
+                    bugNumber += 1
+                    self.counter = 0
+                    break
+
+            if self.counter >= self.maximum:
+                print("Could not find Bug #" + str(bugNumber) + ".")
                 bugNumber += 1
-                bugTestCounter = 0
+                self.counter = 0
 
-            # Increment the overall counter
-            self.counter += 1
-            bugTestCounter += 1
+            if bugNumber > 10:
+                allBugsFound = True
 
 
     # Stephen Davis and Jorge Nunez
     # Take in and mutate a jpeg file for fuzzing.
     def mutate(self, fileName):
 
-        print("mutate(): entering...")  # debug statement
+        # print("mutate(): entering...")  # debug statement
 
         ofp = open(fileName, "wb")  # replace with parameters later
 
@@ -78,7 +101,7 @@ class Fuzzer(object):
         ifp.close()
         ofp.close()
 
-        print("mutate(): done.")        # debug statement
+        # print("mutate(): done.")        # debug statement
 
 
     # Launches and executes the program specified in the class variables, passing through args.
