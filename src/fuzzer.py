@@ -12,11 +12,11 @@ import random
 
 class Fuzzer(object):
 
-    def __init__(self, processLocation, processName, args):
+    def __init__(self, processName, processLocation):
         self.processLocation = processLocation
         self.processName = processName
-        self.args = args
         self.counter = 0
+        self.MAX = 10000
 
     # Derek Borges
     # Loop through and try to exploit all 10 bugs
@@ -29,14 +29,15 @@ class Fuzzer(object):
         bugNumber = 1
         bugTestCounter = 0
 
-        # loop while all bugs are not found (maximum of 10k times)
-        while not allBugsFound and self.counter < 10000:
+        # loop while all bugs are not found (maximum of self.MAX times)
+        while not allBugsFound and self.counter < self.MAX:
 
             # generate a mutation of the template.jpg
             mutate(self, bugNumber)
 
             # run the converter using the mutated file. It only cares if it fails
-            if not launchProcess():
+            # we'll check for a specific return code for that bug
+            if launchProcess("test-"+bugNumber+".jpg") == 48:
                 print("Bug #" + bugNumber + " found! Took " + bugTestCounter + " tries")  # debug statement
                 # move on the next bug
                 bugNumber += 1
@@ -76,16 +77,18 @@ class Fuzzer(object):
         print("mutate(): done.")        # debug statement
 
 
-    def launchProcess(self):
+    def launchProcess(self, args):
 
-        returned = subprocess.run(args=[self.processLocation + self.processName, self.args], stdout=subprocess.PIPE)
+        returned = subprocess.run(args=[self.processLocation + self.processName, args], stdout=subprocess.PIPE)
 
         print(returned.stdout)
         print(returned.returncode)
 
+        return returned.returncode
+
 
 if __name__ == '__main__':
 
-    fuzzer = Fuzzer('jpg2pdf.exe', 'C:/Users/Jesse/Documents/Code/Fuzzer/cis4361-sp18-fuzzer/', 'template.jpg')
+    fuzzer = Fuzzer('jpg2pdf.exe', 'C:/Users/Jesse/Documents/Code/Fuzzer/cis4361-sp18-fuzzer/')
 
     fuzzer.launchProcess()
