@@ -1,6 +1,6 @@
 /*
  * Vulnerability 01: Arbitrary Image Dimension Limit
- * Jorge B. Nunez
+ * Jorge Nunez
  */
 
 #include <stdio.h>
