@@ -32,15 +32,17 @@ class Fuzzer(object):
         # loop while all bugs are not found.
         while not allBugsFound:
 
-            # Compile the C++ jpeg-to-pdf converter and make the filename.
-            print("Compiling...")
+            # Make the filename.
+            # print("Compiling...")
             if bugNumber < 10:
-                subprocess.run("g++ -o jpg2pdf jpg2pdf-0" + str(bugNumber) + ".cpp")
+                # subprocess.run("g++ -o jpg2pdf jpg2pdf-0" + str(bugNumber) + ".cpp")
                 fileName = "test-0" + str(bugNumber) + ".jpg"
+                self.processName = "jpg2pdf-0" + str(bugNumber) + ".exe"
             else:
-                subprocess.run("g++ -o jpg2pdf jpg2pdf-" + str(bugNumber) + ".cpp")
+                # subprocess.run("g++ -o jpg2pdf jpg2pdf-" + str(bugNumber) + ".cpp")
                 fileName = "test-" + str(bugNumber) + ".jpg"
-            print("Done.")
+                self.processName = "jpg2pdf-" + str(bugNumber) + ".exe"
+            # print("Done.")
 
             # Announce start of search.
             print("Searching for Bug #" + str(bugNumber) + "...")
