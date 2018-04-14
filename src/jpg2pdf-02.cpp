@@ -1,3 +1,8 @@
+/*
+ * Vulnerability 02: Buffer Overflow in CopyStream()
+ * Derek Borges
+ */
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -48,20 +53,25 @@ DWORD GetFileSize(FILE *fp)
 
 BOOL CopyStream(FILE *Src,FILE *Dest)
 {
- BYTE  *buffer;
+ BYTE  buffer[55100]; // Vulnerability
  int   Pos;
  DWORD FileSize;
 
  Pos =ftell(Src);
  FileSize=GetFileSize(Src);
 
- buffer=(BYTE *)malloc(FileSize);
+ //buffer=(BYTE *)malloc(FileSize);
+if (sizeof(buffer) < FileSize) {
+  printf("BUG 2 TRIGGERED\n");
+  exit(48);
+}
+
  if (buffer==NULL) 
    return FALSE;
  fseek(Src,0,SEEK_SET);
  fread(buffer,1,FileSize,Src);       
  fwrite(buffer,1,FileSize,Dest);
- free(buffer);
+ //free(buffer);
 
  fseek(Src,Pos,SEEK_SET);
  return TRUE;
