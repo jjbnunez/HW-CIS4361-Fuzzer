@@ -16,7 +16,7 @@ class Fuzzer(object):
         self.processLocation = processLocation
         self.processName = processName
         self.counter = 0
-        self.maximum = 5000
+        self.maximum = 50
 
     # Derek Borges
     # Loop through and try to exploit all 10 bugs
@@ -53,7 +53,7 @@ class Fuzzer(object):
 
                 # Increment the attempt number.
                 self.counter += 1
-                print("Attempt #" + str(self.counter) + "/" + str(self.maximum) + "...")
+                # print("Attempt #" + str(self.counter) + "/" + str(self.maximum) + "...")
 
                 # Generate a mutation of the input file.
                 self.mutate(fileName)
@@ -61,7 +61,7 @@ class Fuzzer(object):
                 # Run the converter to see if it fails with the mutated file.
                 if self.launchProcess(fileName) == 48:
                     print("Bug #" + str(bugNumber) + " found!")
-                    print("Took " + str(self.counter) + " tries.")
+                    print("Took " + str(self.counter) + " tries.\n")
 
                     # Great! Move on to the next bug.
                     bugNumber += 1
@@ -69,7 +69,7 @@ class Fuzzer(object):
                     break
 
             if self.counter >= self.maximum:
-                print("Could not find Bug #" + str(bugNumber) + ".")
+                print("Could not find Bug #" + str(bugNumber) + ".\n")
                 bugNumber += 1
                 self.counter = 0
 
