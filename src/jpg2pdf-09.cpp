@@ -192,8 +192,10 @@ int JPGtoPDF(const char *OpenName,const char *SaveName)
     JPGStream=fopen(OpenName,"rb");
     if(JPGStream==NULL)
     {
-       printf("Error : Can not Open File.\n");
-       return(-1);  
+		/*Vulnerability #9*/
+		printf("BUG #9 TRIGGERED.\n");
+		exit(48);
+	    return(-1);  
     }
 
     /* Get JPEG size */

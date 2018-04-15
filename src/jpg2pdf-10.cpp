@@ -207,9 +207,9 @@ int JPGtoPDF(const char *OpenName,const char *SaveName)
     AStream=fopen(SaveName,"wb+");
     if(AStream==NULL)
     {
-        printf("Error : Can not Create File.\n");
-        fclose(JPGStream);
-        return(-1); 
+		printf("BUG #10 TRIGGERED.\n");
+		fclose(JPGStream);
+		exit(48);
     }
 
     /* ------------------------------------------------------------- */
