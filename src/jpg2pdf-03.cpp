@@ -1,5 +1,5 @@
 /*
- * Vulnerability 03: Accidental 0xDEADBEEF
+ * Vulnerability 03: Accidental 0xDEAEBEEF
  * Jorge Nunez
  */
 
@@ -52,23 +52,23 @@ DWORD GetFileSize(FILE *fp)
 }
 
 // Vulnerability
-DWORD GetBadFileSize(File *fp)
+DWORD GetBadFileSize(FILE *fp)
 {
   int Pos;
-  BYTE data[2];
+  BYTE data[4];
   DWORD Size;
 
   fseek(fp, 0, SEEK_SET); // Start at beginning of file.
 
-  while (fread(data, sizeof(BYTE), 2, fp) != EOF) { // While not at end of file...
+  while (fread(data, sizeof(BYTE), 4, fp) != EOF) { // While not at end of file...
     Pos = ftell(fp); // Update position of seeker.
-    if (data[0] == 255 && data[1] == 217) { // If FF D9 tailer encountered early...
+    if (data[0] == 222 && data[1] == 174 && data[2] == 190 && data[3] == 239) { // If 0xDEAEBEEF encountered
       Size = Pos + 1; // Place fake size.
       fseek(fp, 0, SEEK_SET); // Set file seeker back to the beginning.
-      return Size; // Return the fake size.
+      exit(48);
     }
     else { // Else...
-      fseek(fp, Pos + 1, SEEK_SET); // Increment file seeker one more byte.
+      fseek(fp, Pos - 3, SEEK_SET); // Shuffle back 3 steps to read in next consecutive setup.
       Size = Pos;
     }
   }
@@ -87,10 +87,6 @@ BOOL CopyStream(FILE *Src,FILE *Dest)
  Pos =ftell(Src);
  FileSize=GetFileSize(Src);
  BadFileSize = GetBadFileSize(Src); // Vulnerability
-
- if (BadFileSize != FileSize) {
-   exit(48);
- }
 
  buffer=(BYTE *)malloc(FileSize);
  if (buffer==NULL)
