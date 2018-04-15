@@ -16,7 +16,7 @@ class Fuzzer(object):
         self.processLocation = processLocation
         self.processName = processName
         self.counter = 0
-        self.maximum = 50
+        self.maximum = 5000
 
     # Derek Borges
     # Loop through and try to exploit all 10 bugs
@@ -54,6 +54,9 @@ class Fuzzer(object):
                 # Increment the attempt number.
                 self.counter += 1
                 # print("Attempt #" + str(self.counter) + "/" + str(self.maximum) + "...")
+
+                if self.counter % 100 == 0:
+                    print("Attempt %d..." % self.counter)
 
                 # Generate a mutation of the input file.
                 self.mutate(fileName)
@@ -95,10 +98,12 @@ class Fuzzer(object):
                 randInt1 = random.randrange(500)
                 randInt2 = random.randrange(500)
                 if randInt1 == randInt2:
-                    ofp.write(b'\0xA1')
+                    randHexNum = random.randint(128, 255)
+                    # print(repr(randHexNum) + " equals " + repr(randHexNum.to_bytes(1, byteorder='big')))
+                    ofp.write(randHexNum.to_bytes(1, byteorder='big'))
                 else:
                     ofp.write(byte)
-                byte = ifp.read(10)
+                byte = ifp.read(1)
 
         ifp.close()
         ofp.close()
