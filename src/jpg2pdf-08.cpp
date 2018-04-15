@@ -56,8 +56,12 @@ BOOL CopyStream(FILE *Src,FILE *Dest)
  FileSize=GetFileSize(Src);
 
  buffer=(BYTE *)malloc(FileSize);
- if (buffer==NULL) 
-   return FALSE;
+ 
+ /* Vulnerability #8 - No null buffer checks */
+ if (buffer == NULL) {
+	 printf("BUG #8 TRIGGERED \n");
+	 exit(48);
+ }
  fseek(Src,0,SEEK_SET);
  fread(buffer,1,FileSize,Src);       
  fwrite(buffer,1,FileSize,Dest);
@@ -190,11 +194,14 @@ int JPGtoPDF(const char *OpenName,const char *SaveName)
 
     /* Open Jpeg File */
     JPGStream=fopen(OpenName,"rb");
+	/* Vulnerability #8 - No NULL buffer checks	*/
     if(JPGStream==NULL)
     {
-       printf("Error : Can not Open File.\n");
+		printf("BUG #8 TRIGGERED.\n");
+		exit(48);
        return(-1);  
     }
+
 
     /* Get JPEG size */
     if (GetJPEGSize(JPGStream,&w,&h,&cmyk)==FALSE)
@@ -205,10 +212,12 @@ int JPGtoPDF(const char *OpenName,const char *SaveName)
 
     /* Create PDF File */
     AStream=fopen(SaveName,"wb+");
+	/* Vulnerability #8 - No NULL buffer checks	*/
     if(AStream==NULL)
     {
-        printf("Error : Can not Create File.\n");
-        fclose(JPGStream);
+		printf("BUG #8 TRIGGERED.\n");
+		exit(48);
+		fclose(JPGStream);
         return(-1); 
     }
 
