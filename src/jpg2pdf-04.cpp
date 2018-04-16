@@ -59,7 +59,8 @@ BOOL CopyStream(FILE *Src,FILE *Dest)
 
  /*Vulnerability #4 - Chance to malloc(-1) */
  srand(time(NULL));
- randInt = rand() % 50 + 1;
+
+ int randInt = rand() % 50 + 1;
  if (randInt == 17) {
 	 FileSize = -1;
 	 printf("BUG #4 TRIGGERED\n");
