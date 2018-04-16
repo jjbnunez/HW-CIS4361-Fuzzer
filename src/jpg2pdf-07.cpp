@@ -1,5 +1,5 @@
 /*
- * Vulnerability 07: Accidental 0xCCCCCC
+ * Vulnerability 07: Accidental 0xB6B6B6
  * Jorge Nunez
  */
 
@@ -64,7 +64,7 @@ DWORD GetBadFileSize(FILE *fp, DWORD RealSize)
     fread(data, sizeof(BYTE), 3, fp);
     Pos = ftell(fp); // Update position of seeker.
     //printf("%3d | %3d | %3d\n", data[0], data[1], data[2]);
-    if (data[0] == 204 && data[1] == 204 && data[2] == 204) { // If 0xCCCCCC encountered
+    if (data[0] == 182 && data[1] == 182 && data[2] == 182) { // If 0xB6B6B6 encountered
       Size = Pos + 1; // Place fake size.
       fseek(fp, 0, SEEK_SET); // Set file seeker back to the beginning.
       printf("BUG #7 TRIGGERED\n");

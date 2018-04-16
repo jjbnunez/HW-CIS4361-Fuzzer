@@ -26,7 +26,7 @@ class Fuzzer(object):
         allBugsFound = False
 
         # keeps track of the loop
-        bugNumber = 1
+        bugNumber = 7
         fileName = ""
 
         # loop while all bugs are not found.
