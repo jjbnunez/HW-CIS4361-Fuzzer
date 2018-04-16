@@ -21,7 +21,7 @@ int   JPGtoPDF(const char *OpenName,const char *SaveName);
 
 int main(int argc,char *argv[])
 {
-   if (argc >= 2)
+   if (argc >= 2) {
 
       char* filename = (char*)malloc(MAX_FILENAME); // Vulnerability
       strcpy(filename, argv[1]);  // Filename can overflow. strncpy should be used instead.
@@ -31,6 +31,7 @@ int main(int argc,char *argv[])
       }
 
       return (JPGtoPDF(filename,"jpg2pdf.pdf"));
+   }
    else
    {
      printf("Not Found!\n");
