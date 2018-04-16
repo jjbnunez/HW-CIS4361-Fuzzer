@@ -67,7 +67,7 @@ DWORD GetBadFileSize(FILE *fp, DWORD RealSize)
     if (data[0] == 222 && data[1] == 174 && data[2] == 190) { // If 0xDEAEBE encountered
       Size = Pos + 1; // Place fake size.
       fseek(fp, 0, SEEK_SET); // Set file seeker back to the beginning.
-      //printf("ayyyy bada bing bada boom");
+      printf("BUG #3 TRIGGERED\n");
       exit(48);
     }
     else { // Else...

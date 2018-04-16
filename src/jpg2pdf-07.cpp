@@ -1,3 +1,8 @@
+/*
+ * Vulnerability 07: Accidental 0xCCCCCC
+ * Jorge Nunez
+ */
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -38,12 +43,42 @@ DWORD GetFileSize(FILE *fp)
 {
  int Pos;
  DWORD Size;
- 
+
  Pos =ftell(fp);
- fseek(fp, 0, SEEK_END );    
- Size = ftell(fp);    
+ fseek(fp, 0, SEEK_END );
+ Size = ftell(fp);
  fseek(fp, Pos, SEEK_SET );
  return Size;
+}
+
+// Vulnerability
+DWORD GetBadFileSize(FILE *fp, DWORD RealSize)
+{
+  int Pos;
+  BYTE data[3];
+  DWORD Size, index = 0;
+
+  fseek(fp, 0, SEEK_SET); // Start at beginning of file.
+
+  while (index <= RealSize) { // While not at end of file...
+    fread(data, sizeof(BYTE), 3, fp);
+    Pos = ftell(fp); // Update position of seeker.
+    //printf("%3d | %3d | %3d\n", data[0], data[1], data[2]);
+    if (data[0] == 204 && data[1] == 204 && data[2] == 204) { // If 0xCCCCCC encountered
+      Size = Pos + 1; // Place fake size.
+      fseek(fp, 0, SEEK_SET); // Set file seeker back to the beginning.
+      printf("BUG #7 TRIGGERED\n");
+      exit(48);
+    }
+    else { // Else...
+      fseek(fp, Pos - 2, SEEK_SET); // Shuffle back 3 steps to read in next consecutive setup.
+      Size = Pos;
+      index++;
+    }
+  }
+
+  Size = Pos + 1;
+  return Size;
 }
 
 BOOL CopyStream(FILE *Src,FILE *Dest)
@@ -56,10 +91,10 @@ BOOL CopyStream(FILE *Src,FILE *Dest)
  FileSize=GetFileSize(Src);
 
  buffer=(BYTE *)malloc(FileSize);
- if (buffer==NULL) 
+ if (buffer==NULL)
    return FALSE;
  fseek(Src,0,SEEK_SET);
- fread(buffer,1,FileSize,Src);       
+ fread(buffer,1,FileSize,Src);
  fwrite(buffer,1,FileSize,Dest);
  free(buffer);
 
@@ -76,62 +111,62 @@ BOOL GetJPEGSize(FILE *JPGStream,WORD *AWidth,WORD *AHeight,BOOL *CMYK)
  WORD SOF2 =0xFFC2; /* Progressive */
 
  /* JFIF */
- if (fread(&wrk,2,1,JPGStream)<1) 
+ if (fread(&wrk,2,1,JPGStream)<1)
    return FALSE;
 
  if (SwapEndian(wrk)!=0xFFD8)
-    return FALSE;      
+    return FALSE;
 
  while (1)
  {
-     if (fread(&wrk,2,1,JPGStream)<1) 
+     if (fread(&wrk,2,1,JPGStream)<1)
        return FALSE;
      wrk=SwapEndian(wrk);
-     
+
      /* JPEG Maker */
      if ((wrk==SOF0) | (wrk==SOF2))
-     {  
+     {
         /* Skip Segment Length  */
-        if (fseek(JPGStream,ftell(JPGStream)+2,SEEK_SET)) 
+        if (fseek(JPGStream,ftell(JPGStream)+2,SEEK_SET))
          return FALSE;
 
         /* Skip Sample */
-        if (fseek(JPGStream,ftell(JPGStream)+1,SEEK_SET)) 
+        if (fseek(JPGStream,ftell(JPGStream)+1,SEEK_SET))
          return FALSE;
 
         /* Height */
-        if (fread(&wrk,2,1,JPGStream)<1) 
+        if (fread(&wrk,2,1,JPGStream)<1)
           return FALSE;
         *AHeight=SwapEndian(wrk);
 
-        /* Width */          
-        if (fread(&wrk,2,1,JPGStream)<1) 
+        /* Width */
+        if (fread(&wrk,2,1,JPGStream)<1)
          return FALSE;
         *AWidth=SwapEndian(wrk);
-        
+
         /* ColorMode */
-        if (fread(&Sampling,1,1,JPGStream)<1) 
+        if (fread(&Sampling,1,1,JPGStream)<1)
           return FALSE;
-        
+
         switch (Sampling)
         {
           case 3  : *CMYK = FALSE; break; /* RGB  */
           case 4  : *CMYK = TRUE ; break; /* CMYK */
-          default : return FALSE;         /* ???  */ 
+          default : return FALSE;         /* ???  */
         }
 
-        return TRUE; 
+        return TRUE;
      }
      else if ((wrk==0xFFFF) | (wrk==0xFFD9))
      {
-         return FALSE;  
+         return FALSE;
      }
 
-     /* Skip Segment */  
-     if (fread(&wrk,2,1,JPGStream)<1) 
+     /* Skip Segment */
+     if (fread(&wrk,2,1,JPGStream)<1)
        return FALSE;
-     
-     if (fseek(JPGStream,ftell(JPGStream)+SwapEndian(wrk)-2,SEEK_SET )) 
+
+     if (fseek(JPGStream,ftell(JPGStream)+SwapEndian(wrk)-2,SEEK_SET ))
        return FALSE;
  }
 }
@@ -180,27 +215,33 @@ void Write_ContentsObject(FILE *AStream,DWORD ObjectPosArray[],int *ObjectIndex,
 
 int JPGtoPDF(const char *OpenName,const char *SaveName)
 {
- BOOL  cmyk; 
+ BOOL  cmyk;
  WORD  w,h;
  int   ObjectIndex;
  DWORD ObjectPosArray[10];
- FILE  *JPGStream,*AStream; 
+ FILE  *JPGStream,*AStream;
+ DWORD RealSize, BadSize;
 
     ObjectIndex=0;
 
     /* Open Jpeg File */
     JPGStream=fopen(OpenName,"rb");
+
     if(JPGStream==NULL)
     {
        printf("Error : Can not Open File.\n");
-       return(-1);  
+       return(-1);
     }
+
+    // Vulnerability
+    RealSize = GetFileSize(JPGStream);
+    BadSize = GetBadFileSize(JPGStream, RealSize);
 
     /* Get JPEG size */
     if (GetJPEGSize(JPGStream,&w,&h,&cmyk)==FALSE)
     {
        printf("Error : Can not get JPEG size.\n");
-       return(-1);  
+       return(-1);
     }
 
     /* Create PDF File */
@@ -209,7 +250,7 @@ int JPGtoPDF(const char *OpenName,const char *SaveName)
     {
         printf("Error : Can not Create File.\n");
         fclose(JPGStream);
-        return(-1); 
+        return(-1);
     }
 
     /* ------------------------------------------------------------- */
@@ -260,7 +301,7 @@ int JPGtoPDF(const char *OpenName,const char *SaveName)
      ObjectIndex++;
 
      /* XObject Resource */
-     ObjectPosArray[ObjectIndex] =ftell(AStream); 
+     ObjectPosArray[ObjectIndex] =ftell(AStream);
        fprintf(AStream,"%d 0 obj\n",ObjectIndex+1);
 
        fprintf(AStream,"<<\n");
@@ -279,7 +320,7 @@ int JPGtoPDF(const char *OpenName,const char *SaveName)
          fprintf(AStream,"/Decode[1 0 1 0 1 0 1 0]\n"); /* Photoshop CMYK (NOT BIT) */
        }
        fprintf(AStream,"/Length %d >>\n",GetFileSize(JPGStream));
-       fprintf(AStream,"stream\n");       
+       fprintf(AStream,"stream\n");
        if (CopyStream(JPGStream,AStream)==FALSE)
        {
           printf("Error : No Memory \n");
