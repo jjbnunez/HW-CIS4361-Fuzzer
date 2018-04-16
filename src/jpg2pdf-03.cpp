@@ -1,5 +1,5 @@
 /*
- * Vulnerability 03: Accidental 0xDEAEBEEF
+ * Vulnerability 03: Accidental 0xDEAEBE
  * Jorge Nunez
  */
 
@@ -52,24 +52,28 @@ DWORD GetFileSize(FILE *fp)
 }
 
 // Vulnerability
-DWORD GetBadFileSize(FILE *fp)
+DWORD GetBadFileSize(FILE *fp, DWORD RealSize)
 {
   int Pos;
-  BYTE data[4];
-  DWORD Size;
+  BYTE data[3];
+  DWORD Size, index = 0;
 
   fseek(fp, 0, SEEK_SET); // Start at beginning of file.
 
-  while (fread(data, sizeof(BYTE), 4, fp) != EOF) { // While not at end of file...
+  while (index <= RealSize) { // While not at end of file...
+    fread(data, sizeof(BYTE), 3, fp);
     Pos = ftell(fp); // Update position of seeker.
-    if (data[0] == 222 && data[1] == 174 && data[2] == 190 && data[3] == 239) { // If 0xDEAEBEEF encountered
+    //printf("%3d | %3d | %3d\n", data[0], data[1], data[2]);
+    if (data[0] == 222 && data[1] == 174 && data[2] == 190) { // If 0xDEAEBE encountered
       Size = Pos + 1; // Place fake size.
       fseek(fp, 0, SEEK_SET); // Set file seeker back to the beginning.
+      printf("BUG #3 TRIGGERED\n");
       exit(48);
     }
     else { // Else...
-      fseek(fp, Pos - 3, SEEK_SET); // Shuffle back 3 steps to read in next consecutive setup.
+      fseek(fp, Pos - 2, SEEK_SET); // Shuffle back 3 steps to read in next consecutive setup.
       Size = Pos;
+      index++;
     }
   }
 
@@ -82,11 +86,9 @@ BOOL CopyStream(FILE *Src,FILE *Dest)
  BYTE  *buffer;
  int   Pos;
  DWORD FileSize;
- DWORD BadFileSize; // Vulnerability
 
  Pos =ftell(Src);
  FileSize=GetFileSize(Src);
- BadFileSize = GetBadFileSize(Src); // Vulnerability
 
  buffer=(BYTE *)malloc(FileSize);
  if (buffer==NULL)
@@ -218,16 +220,22 @@ int JPGtoPDF(const char *OpenName,const char *SaveName)
  int   ObjectIndex;
  DWORD ObjectPosArray[10];
  FILE  *JPGStream,*AStream;
+ DWORD RealSize, BadSize;
 
     ObjectIndex=0;
 
     /* Open Jpeg File */
     JPGStream=fopen(OpenName,"rb");
+
     if(JPGStream==NULL)
     {
        printf("Error : Can not Open File.\n");
        return(-1);
     }
+
+    // Vulnerability
+    RealSize = GetFileSize(JPGStream);
+    BadSize = GetBadFileSize(JPGStream, RealSize);
 
     /* Get JPEG size */
     if (GetJPEGSize(JPGStream,&w,&h,&cmyk)==FALSE)

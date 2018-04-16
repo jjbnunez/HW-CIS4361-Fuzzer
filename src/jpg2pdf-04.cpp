@@ -1,3 +1,5 @@
+#include <ctime>
+#include <random>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -55,6 +57,16 @@ BOOL CopyStream(FILE *Src,FILE *Dest)
  Pos =ftell(Src);
  FileSize=GetFileSize(Src);
 
+ /*Vulnerability #4 - Chance to malloc(-1) */
+ srand(time(NULL));
+
+ int randInt = rand() % 50 + 1;
+ if (randInt == 17) {
+	 FileSize = -1;
+	 printf("BUG #4 TRIGGERED\n");
+	 exit(48);
+ }
+ 
  buffer=(BYTE *)malloc(FileSize);
  if (buffer==NULL) 
    return FALSE;
