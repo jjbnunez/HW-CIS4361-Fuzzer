@@ -11,7 +11,7 @@ typedef unsigned long       DWORD;
 
 #define FALSE               0
 #define TRUE                1
-#define MAX_FILENAME        2
+#define MAX_FILENAME        5
 
 WORD  SwapEndian(WORD S);
 DWORD GetFileSize(FILE *fp);
@@ -30,11 +30,12 @@ int main(int argc,char *argv[])
       char* filename = (char*)malloc(MAX_FILENAME); // Vulnerability
       strcpy(filename, argv[1]);  // Filename can overflow. strncpy should be used instead.
 
+/*
       if (rand() % 200 == 0) {
         filename[2] = '\0';
       }
-
-      if (strlen(argv[1]) > strlen(filename)) {
+*/
+      if (strlen(argv[1]) > MAX_FILENAME) {
         printf("BUG #5 TRIGGERED\n");
         exit(48);
       }
