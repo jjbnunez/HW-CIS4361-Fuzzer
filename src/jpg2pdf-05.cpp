@@ -35,6 +35,7 @@ int main(int argc,char *argv[])
       }
 
       if (strlen(argv[1]) > strlen(filename)) {
+        printf("BUG #5 TRIGGERED\n");
         exit(48);
       }
 
