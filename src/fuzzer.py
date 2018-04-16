@@ -90,13 +90,13 @@ class Fuzzer(object):
 
         with open("template.jpg", "rb") as ifp:
 
-            byte = ifp.read(25)
+            byte = ifp.read(4096)
 
             while byte:
                 if byte == '':
                     break
-                randInt1 = random.randrange(500)
-                randInt2 = random.randrange(500)
+                randInt1 = random.randrange(10)
+                randInt2 = random.randrange(10)
                 if randInt1 == randInt2:
                     randHexNum = random.randint(128, 255)
                     # print(repr(randHexNum) + " equals " + repr(randHexNum.to_bytes(1, byteorder='big')))
