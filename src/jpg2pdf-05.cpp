@@ -1,3 +1,5 @@
+#include <ctime>
+#include <random>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -21,12 +23,18 @@ int   JPGtoPDF(const char *OpenName,const char *SaveName);
 
 int main(int argc,char *argv[])
 {
+   srand(time(NULL));
+
    if (argc >= 2) {
 
       char* filename = (char*)malloc(MAX_FILENAME); // Vulnerability
       strcpy(filename, argv[1]);  // Filename can overflow. strncpy should be used instead.
 
-      if (sizeof(argv[1]) > sizeof(filename)) {
+      if (rand() % 200 == 0) {
+        filename[2] = '\0';
+      }
+
+      if (strlen(argv[1]) > strlen(filename)) {
         exit(48);
       }
 
